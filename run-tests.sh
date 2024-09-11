@@ -1,0 +1,1 @@
+docker exec -it um_api ./vendor/bin/phpunit
