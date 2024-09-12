@@ -28,11 +28,26 @@ class Cpf
 
     private function isValidLength(): bool
     {
-        return false;
+        return strlen($this->cpf) === self::MAX_LENGTH;
     }
 
     private function isValidNumber(): bool
     {
-        return false;
+        if (preg_match('/(\d)\1{10}/', $this->cpf)) {
+            return false;
+        }
+
+        for ($t = 9; $t < 11; $t++) {
+            $d = 0;
+            for ($c = 0; $c < $t; $c++) {
+                $d += $this->cpf[$c] * (($t + 1) - $c);
+            }
+            $d = ((10 * $d) % 11) % 10;
+            if ($this->cpf[$c] != $d) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
