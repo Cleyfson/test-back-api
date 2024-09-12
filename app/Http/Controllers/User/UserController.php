@@ -524,17 +524,11 @@ class UserController extends Controller
     {
         try {
             $user = new User(new UserDb());
-
-            $userDataValidator = 'find-the-proper-class-to-validate-the-user-data';
-            $user->setDataValidator($userDataValidator);
-
-            $users = 'find-all-users';
+            $user->setDataValidator(new UserDataValidator());
+            $users = $user->findAll($user);
 
             $csv = new Csv();
-
-            $csvDataValidator = 'find-the-proper-class-to-validate-the-csv-data';
-
-            $csv->setDataValidator($csvDataValidator);
+            $csv->setDataValidator(new CsvDataValidator());
 
             $userSpreadsheet = new UserSpreadsheet();
 
@@ -543,7 +537,7 @@ class UserController extends Controller
                 ->setCsv($csv)
             ;
 
-            $content = 'find-the-way-to-build-the-content';
+            $content = $userSpreadsheet->buildContentFromUsers();
 
             return $this->buildSuccessResponse([
                 'csv' => $content
