@@ -240,4 +240,37 @@ class UserTest extends TestCase
 
         $this->assertNotEmpty($user->getName());
     }
+
+    public function testShouldCorrectlyFindUserById(): void
+    {
+        $userMemory = new UserMemory();
+
+        $user = (new User($userMemory))
+            ->setDataValidator(new UserDataValidator())
+            ->setId($this->faker->uuid())
+            ->setName($this->faker->name())
+            ->setEmail($this->faker->email())
+            ->setCpf(self::VALID_CPF)
+        ;
+
+        $userMemory->create($user);
+
+        (new User($userMemory))
+            ->setDataValidator(new UserDataValidator())
+            ->setId($user->getId())
+            ->findById($user->getId());
+
+        $this->assertNotEmpty($user->getName());
+    }
+
+    public function testShouldThrowExceptionWhenUserNotFoundById(): void
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('The user does not exist');
+
+        (new User(new UserMemory()))
+            ->setDataValidator(new UserDataValidator())
+            ->setId($this->faker->uuid())
+            ->findById('non-existent-id');
+    }
 }

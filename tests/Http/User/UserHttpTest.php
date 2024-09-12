@@ -26,7 +26,8 @@ class UserHttpTest extends TestCase
             'uuid' => $this->faker->uuid(),
             'name' => $this->faker->name(),
             'email' => $this->faker->email(),
-            'cpf' => self::VALID_CPF
+            'cpf' => self::VALID_CPF,
+            'is_credit_eligible' => $this->faker->randomElement([0, 1]),
         ]);
     }
 
@@ -35,18 +36,37 @@ class UserHttpTest extends TestCase
         $response = $this
             ->call(
                 'GET',
-                '/users'
+                '/user'
             )
         ;
 
         $response->assertStatus(self::HTTP_SUCCESS_STATUS);
         $response->assertJson([
             [
-                'uuid' => $this->user->uuid,
+                'id' => $this->user->uuid,
                 'name' => $this->user->name,
                 'email' => $this->user->email,
                 'cpf' => $this->user->cpf
             ]
+        ]);
+    }
+
+    public function testShouldCorrectlyReturnUserById(): void
+    {
+        $response = $this
+            ->call(
+                'GET',
+                "/user/{$this->user->uuid}"
+            )
+        ;
+
+        $response->assertStatus(self::HTTP_SUCCESS_STATUS);
+        $response->assertJson([
+            'id' => $this->user->uuid,
+            'name' => $this->user->name,
+            'email' => $this->user->email,
+            'cpf' => $this->user->cpf,
+            'is_credit_eligible' => $this->user->is_credit_eligible
         ]);
     }
 }
