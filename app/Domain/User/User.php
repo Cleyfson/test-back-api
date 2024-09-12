@@ -15,6 +15,7 @@ class User
     private string $cpf;
     private string $dateCreation;
     private string $dateEdition;
+    private string $isCreditEligible;
 
     private UserDataValidatorInterface $dataValidator;
     private UuidGeneratorInterface $uuidGenerator;
@@ -135,6 +136,18 @@ class User
         return $this;
     }
 
+    public function setIsCreditEligible(int $isCreditEligible): self
+    {
+        $this->isCreditEligible = $isCreditEligible;
+
+        return $this;
+    }
+
+    public function getIsCreditEligible(): int
+    {
+        return $this->isCreditEligible;
+    }
+
     public function createFromBatch(array $users): void
     {
         $this->checkUsers($users);
@@ -170,6 +183,13 @@ class User
     public function findAll(): array
     {
         return $this->persistence->findAll($this);
+    }
+
+    public function findById(string $id): User
+    {
+        $this->checkExistentId();
+
+        return $this->persistence->findById($id);
     }
 
     public function editName(): void

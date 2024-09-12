@@ -18,6 +18,7 @@ class UserDb implements UserPersistenceInterface
     private const COLUMN_CREATED_AT = 'created_at';
     private const COLUMN_DELETED_AT = 'deleted_at';
     private const COLUMN_UPDATED_AT = 'updated_at';
+    private const MINIMUM_MONTHS_FOR_CREDIT_ELIGIBILITY = '6';
 
     public function create(User $user): void
     {
@@ -82,6 +83,41 @@ class UserDb implements UserPersistenceInterface
             ->where([self::COLUMN_UUID => $user->getId()])
             ->exists()
         ;
+    }
+
+    public function findById(string $id): User
+    {
+        $requiredMonthsForEligibility = self::MINIMUM_MONTHS_FOR_CREDIT_ELIGIBILITY;
+
+        $record = DB::table(self::TABLE_NAME)
+            ->select([
+                self::COLUMN_UUID . ' as uuid',
+                self::COLUMN_NAME . ' as name',
+                self::COLUMN_EMAIL . ' as email',
+                self::COLUMN_CPF . ' as cpf',
+                self::COLUMN_CREATED_AT . ' as admission_date',
+                DB::raw("
+                    CASE
+                        WHEN datetime(" . self::COLUMN_CREATED_AT . ") <= datetime('now', '-' || $requiredMonthsForEligibility || ' month') THEN 1
+                        ELSE 0
+                    END as is_credit_eligible
+                ")
+            ])
+            ->where(self::COLUMN_UUID, $id)
+            ->whereNull(self::COLUMN_DELETED_AT)
+            ->first()
+        ;
+
+        $user = (new User(new UserDb()))
+            ->setDataValidator(new UserDataValidator())
+            ->setId($record->uuid)
+            ->setName($record->name)
+            ->setCpf($record->cpf)
+            ->setEmail($record->email)
+            ->setIsCreditEligible($record->is_credit_eligible)
+        ;
+
+        return $user;
     }
 
     public function editName(User $user): void

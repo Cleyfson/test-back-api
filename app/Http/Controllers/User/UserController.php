@@ -191,6 +191,75 @@ class UserController extends Controller
         }
     }
 
+
+    /**
+     * @OA\Get(
+     *     path="/user/{id}",
+     *     summary="Retorna os dados de um usuário por ID, incluindo a elegibilidade para crédito consignado",
+     *     tags={"User"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="UUID do usuário",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Dados do usuário com status de elegibilidade para crédito consignado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="id", type="string", format="uuid", example="123e4567-e89b-12d3-a456-426614174000"),
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="cpf", type="string", example="32016170085"),
+     *             @OA\Property(property="email", type="string", example="johndoe@email.com"),
+     *             @OA\Property(property="admission_date", type="string", format="date", example="2023-01-01"),
+     *             @OA\Property(property="is_credit_eligible", type="boolean", example=true)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Usuário não encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="User not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Requisição inválida",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Invalid request")
+     *         )
+     *     )
+     * )
+     */
+    public function getUserById(string $id): JsonResponse
+    {
+        try {
+            $user = new User(new UserDb());
+
+            $user
+                ->setDataValidator(new UserDataValidator())
+                ->setId($id)
+            ;
+
+            $userData = $user->findById($id);
+
+            $response = [
+                'id' => $userData->getId(),
+                'name' => $userData->getName(),
+                'email' => $userData->getEmail(),
+                'cpf' => $userData->getCpf(),
+                'is_credit_eligible' => $userData->getIsCreditEligible()
+            ];
+
+            return $this->buildSuccessResponse($response);
+        } catch (UserNotFoundException $e) {
+            return $this->buildBadRequestResponse($e->getMessage());
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
     /**
      * @OA\Patch(
      *     path="/user/{id}/name",
