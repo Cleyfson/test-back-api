@@ -152,4 +152,11 @@ class UserDb implements UserPersistenceInterface
             ])
         ;
     }
+
+    public function delete(string $id): void
+    {
+        DB::table(self::TABLE_NAME)
+            ->where(self::COLUMN_UUID, $id)
+            ->update([self::COLUMN_DELETED_AT => date('Y-m-d H:i:s')]);
+    }
 }

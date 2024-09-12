@@ -8,6 +8,7 @@ $router->group(['prefix' => 'user'], function () use ($router) {
 
     $router->get('/', 'User\UserController@all');
     $router->get('/{id}', 'User\UserController@getUserById');
+    $router->delete('/{id}', 'User\UserController@softDeleteUser');
     $router->patch('/{id}/name', 'User\UserController@editName');
     $router->patch('/{id}/cpf', 'User\UserController@editCpf');
     $router->patch('/{id}/email', 'User\UserController@editEmail');

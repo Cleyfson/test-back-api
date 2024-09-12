@@ -619,4 +619,54 @@ class UserController extends Controller
             throw $e;
         }
     }
+
+    /**
+     * @OA\Delete(
+     *     path="/user/{id}",
+     *     summary="Remove (soft delete) um usuário por ID",
+     *     tags={"User"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="UUID do usuário",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="Usuário removido com sucesso"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Usuário não encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="User not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Requisição inválida",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Invalid request")
+     *         )
+     *     )
+     * )
+     */
+    public function softDeleteUser(string $id): JsonResponse
+    {
+        try {
+            $user = new User(new UserDb());
+
+            $user
+                ->setDataValidator(new UserDataValidator())
+                ->setId($id)
+            ;
+
+            $user->deleteUser($id);
+
+            return response()->json(null, 204);
+        } catch (\Exception $e) {
+            return $this->buildBadRequestResponse($e->getMessage());
+        }
+    }
 }

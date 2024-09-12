@@ -192,6 +192,13 @@ class User
         return $this->persistence->findById($id);
     }
 
+    public function deleteUser(string $id): void
+    {
+        $this->checkExistentId();
+
+        $this->persistence->delete($id);
+    }
+
     public function editName(): void
     {
         $this->checkExistentId();
