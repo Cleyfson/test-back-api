@@ -44,6 +44,15 @@ class UserMemory implements UserPersistenceInterface
         return isset($this->users[$user->getId()]);
     }
 
+    public function findById(string $id): User
+    {
+        if (isset($this->users[$id])) {
+            return $this->users[$id];
+        }
+
+        throw new \Exception('User not found');
+    }
+
     public function editName(User $user): void
     {
         if (isset($this->users[$user->getId()])) {
@@ -62,6 +71,15 @@ class UserMemory implements UserPersistenceInterface
     {
         if (isset($this->users[$user->getId()])) {
             $this->users[$user->getId()]->setEmail($user->getEmail());
+        }
+    }
+
+    public function delete(string $id): void
+    {
+        if (isset($this->users[$id])) {
+            unset($this->users[$id]);
+        } else {
+            throw new \Exception('User not found');
         }
     }
 }

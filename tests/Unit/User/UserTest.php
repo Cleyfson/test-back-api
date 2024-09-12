@@ -273,4 +273,38 @@ class UserTest extends TestCase
             ->setId($this->faker->uuid())
             ->findById('non-existent-id');
     }
+
+
+    public function testShouldCorrectlySoftDeleteUser(): void
+    {
+        $userMemory = new UserMemory();
+
+        $user = (new User($userMemory))
+            ->setDataValidator(new UserDataValidator())
+            ->setId($this->faker->uuid())
+            ->setName($this->faker->name())
+            ->setEmail($this->faker->email())
+            ->setCpf(self::VALID_CPF)
+        ;
+
+        $userMemory->create($user);
+
+        (new User($userMemory))
+            ->setDataValidator(new UserDataValidator())
+            ->setId($user->getId())
+            ->deleteUser($user->getId());
+
+        $this->assertNotEmpty($user->getName());
+    }
+
+    public function testShouldThrowExceptionWhenTryToDeleteNonExistentUser(): void
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('The user does not exist');
+
+        (new User(new UserMemory()))
+            ->setDataValidator(new UserDataValidator())
+            ->setId($this->faker->uuid())
+            ->deleteUser('non-existent-id');
+    }
 }

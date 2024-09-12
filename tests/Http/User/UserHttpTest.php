@@ -6,6 +6,7 @@ use App\Models\User;
 use Tests\TestCase;
 use Faker;
 use Laravel\Lumen\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\DB;
 
 class UserHttpTest extends TestCase
 {
@@ -69,4 +70,21 @@ class UserHttpTest extends TestCase
             'is_credit_eligible' => $this->user->is_credit_eligible
         ]);
     }
+
+    public function testShouldSoftDeleteUser(): void
+    {
+        $userBeforeDelete = DB::table('user')->where('uuid', $this->user->uuid)->first();
+        $this->assertNull($userBeforeDelete->deleted_at);
+
+        $response = $this->call(
+            'DELETE',
+            "/user/{$this->user->uuid}"
+        );
+
+        $response->assertStatus(204);
+
+        $userAfterDelete = DB::table('user')->where('uuid', $this->user->uuid)->first();
+        $this->assertNotNull($userAfterDelete->deleted_at);
+    }
+
 }
