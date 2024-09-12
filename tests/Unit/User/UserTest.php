@@ -193,7 +193,7 @@ class UserTest extends TestCase
 
         $user->setDateEdition('2023-12-30 16:30:00');
 
-        $this->assertNotEmpty($user->getDateCreation());
+        $this->assertNotEmpty($user->getDateEdition());
     }
 
     public function testShouldThrowAnExceptionWhenTryToSetEmptyDateEdition(): void
