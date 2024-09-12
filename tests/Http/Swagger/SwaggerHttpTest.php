@@ -11,7 +11,7 @@ class SwaggerHttpTest extends TestCase
         $response = $this
             ->call(
                 'GET',
-                '/api-swagger'
+                '/api-docs'
             )
         ;
 

@@ -54,7 +54,7 @@ class SwaggerController extends Controller
     public function docs()
     {
         try {
-            $docBlocksPath = '/var/www/html/app/Http/Controllers/';
+            $docBlocksPath = app()->basePath('app/Http/Controllers/');
 
             $swagger = (new Swagger())->setDocBlocksPath($docBlocksPath);
 
