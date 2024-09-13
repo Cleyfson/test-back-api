@@ -6,9 +6,12 @@ use App\Domain\Uuid\UuidGeneratorInterface;
 use App\Exceptions\DuplicatedDataException;
 use App\Exceptions\InvalidUserObjectException;
 use App\Exceptions\UserNotFoundException;
+use DateTime;
 
 class User
 {
+    private const MINIMUM_MONTHS_FOR_CREDIT_ELIGIBILITY = '6';
+
     private string $id;
     private string $name;
     private string $email;
@@ -189,7 +192,16 @@ class User
     {
         $this->checkExistentId();
 
-        return $this->persistence->findById($id);
+        $user = $this->persistence->findById($id);
+
+        $admissionDate = new DateTime($user->getDateCreation());
+        $currentDate = new DateTime();
+        $interval = $currentDate->diff($admissionDate);
+        $isCreditEligible = ($interval->m + ($interval->y * 12)) >= self::MINIMUM_MONTHS_FOR_CREDIT_ELIGIBILITY ? 1 : 0;
+
+        $user->setIsCreditEligible($isCreditEligible);
+
+        return $user;
     }
 
     public function deleteUser(string $id): void

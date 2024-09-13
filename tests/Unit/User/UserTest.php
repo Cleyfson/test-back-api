@@ -251,6 +251,7 @@ class UserTest extends TestCase
             ->setName($this->faker->name())
             ->setEmail($this->faker->email())
             ->setCpf(self::VALID_CPF)
+            ->setDateCreation(date('Y-m-d H:i:s'))
         ;
 
         $userMemory->create($user);
@@ -258,6 +259,7 @@ class UserTest extends TestCase
         (new User($userMemory))
             ->setDataValidator(new UserDataValidator())
             ->setId($user->getId())
+            ->setDateCreation($user->getDateCreation())
             ->findById($user->getId());
 
         $this->assertNotEmpty($user->getName());
